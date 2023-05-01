@@ -1,9 +1,13 @@
 # R3DE - Render 3D Engine
 
-* A 3D Render project for the PsVita.
+* A 3D Rendering Engine project.
 
-* Still doesn't build yet.
+* Main use is for my future projects.
+
+* Make sure to credit me if you ever use this.
+
+# How to build.
 
 # Credits
 
-* [SnesFX](https://twitter.com/snesfx) - The Render Engine
+* [TyDev](https://twitter.com/TyDev_) - The Render Engine

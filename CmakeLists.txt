@@ -1,51 +1,24 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.0)
 
-if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)
-  if(DEFINED ENV{VITASDK})
-    set(CMAKE_TOOLCHAIN_FILE "$ENV{VITASDK}/share/vita.toolchain.cmake" CACHE PATH "toolchain file")
-  else()
-    message(FATAL_ERROR "Please define VITASDK to point to your SDK path!")
-  endif()
-endif()
+project(R3DE)
 
-project(R3DE C CXX)
-include("${VITASDK}/share/vita.cmake" REQUIRED)
-set(VITA_APP_NAME "Render 3D Engine")
-set(VITA_TITLEID  "R3DEV0000")
-set(VITA_VERSION  "01.00")
-set(VITA_MKSFOEX_FLAGS "-d ATTRIBUTE2=12")
+set(CMAKE_C_COMPILER gcc)
+set(CMAKE_C_STANDARD 99)
+set(CMAKE_C_FLAGS "-Wall -Wextra -pedantic")
 
-set(CMAKE_C_FLAGS "-Wl,-q -Wall -O2")
-set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -std=c++11 -fno-rtti -fno-exceptions")
+set(SRC_DIR src)
+set(BIN_DIR bin)
 
-include_directories(src)
+file(GLOB SRCS ${SRC_DIR}/*.c)
+set(OBJS "")
+foreach(SRC ${SRCS})
+    get_filename_component(OBJ ${SRC} NAME_WE)
+    set(OBJ ${BIN_DIR}/${OBJ}.o)
+    list(APPEND OBJS ${OBJ})
+endforeach()
 
-add_executable(R3DE
-  src/main.c
-  src/input.c
-)
+add_executable(app_executable ${SRCS})
+target_link_libraries(app_executable GL glfw)
 
-target_link_libraries(R3DE
-    m
-    vita2d
-    vitagl
-    png
-    jpeg
-    freetype
-    z
-)
-
-vita_create_self(eboot.bin R3DE UNSAFE)
-vita_create_vpk(Render3DEngine.vpk ${VITA_TITLEID} eboot.bin
-  VERSION ${VITA_VERSION}
-  NAME ${VITA_APP_NAME}
-  FILE ${CMAKE_SOURCE_DIR}/sce_sys/icon0.png sce_sys/icon0.png
-       ${CMAKE_SOURCE_DIR}/sce_sys/livearea/contents/bg.png sce_sys/livearea/contents/bg.png
-       ${CMAKE_SOURCE_DIR}/sce_sys/livearea/contents/startup.png sce_sys/livearea/contents/startup.png
-       ${CMAKE_SOURCE_DIR}/sce_sys/livearea/contents/template.xml sce_sys/livearea/contents/template.xml
-)
-
-add_custom_target(copy
-  COMMAND cp eboot.bin D:/app/${VITA_TITLEID}/eboot.bin
-  DEPENDS eboot.bin
-)
+add_custom_command(TARGET app_executable POST_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory ${BIN_DIR})
+set_target_properties(app_executable PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${BIN_DIR})
