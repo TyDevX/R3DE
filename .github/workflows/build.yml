@@ -1,0 +1,45 @@
+name: R3DE Test and Build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Setup OpenGL
+      run: sudo apt-get update && sudo apt-get install -y mesa-utils libgl1-mesa-dev
+
+    - name: Build application
+      run: |
+        mkdir build
+        cd build
+        cmake ..
+        make
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: Application
+        path: build/R3DE
+
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+    - name: Download artifacts
+      uses: actions/download-artifact@v2
+      with:
+        name: Application
+        path: build
+
+    - name: Test application
+      run: |
+        cd build
+        ./R3DE
