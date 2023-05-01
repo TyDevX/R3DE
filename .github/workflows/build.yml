@@ -19,7 +19,7 @@ jobs:
     - name: Build application
       run: |
         cd build
-        cmake ..
+        cmake .
         make
 
     - name: Upload artifacts
